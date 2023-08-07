@@ -15,7 +15,7 @@ classifiers = [
 
 dependencies = [ 
   "binance-connector",
-  "dateutil"
+  "python-dateutil"
 ]
 
 [build-system]
