@@ -61,13 +61,14 @@ class Order:
         self._next_order_t = self._start_date + self._freq
         self._last_order_t: datetime = None
 
-    def execute_now(self) -> bool:
+    def execute(self) -> bool:
         """_summary_
 
         Returns:
             bool: _description_
         """
         self._last_order_t = datetime.now()
+        self._next_order_t = datetime.now() + self._freq
 
     @property
     def next_execution_time(self) -> datetime:
@@ -86,3 +87,21 @@ class Order:
             Union[datetime, None]: Last executed order time. None if no executed orders.
         """
         return self._last_order_t
+
+    @property
+    def symbol(self) -> str:
+        """Return the order symbol.
+
+        Returns:
+            str: Return the order symbol.
+        """
+        return self._symbol
+
+    @property
+    def amount(self) -> float:
+        """Return the order amount.
+
+        Returns:
+            float: order amount.
+        """
+        return self._amount

@@ -15,3 +15,13 @@ class OrderUTests(unittest.TestCase):
         order = Order("BTCUSDT", 10, freq, start_date=start_t)
         next_order_t = start_t + relativedelta(days=+1)
         self.assertEqual(order.next_execution_time, next_order_t)
+
+    def test_execute_order(self):
+        start_t = datetime.now()
+        freq = Frequency.DAILY
+        order = Order("BTCUSDT", 10, freq, start_date=start_t)
+        next_order_t = order.next_execution_time
+        order.execute()
+        self.assertLess(start_t, order.last_executed_time)
+        self.assertNotEqual(next_order_t, order.next_execution_time)
+        self.assertGreater(order.next_execution_time, next_order_t)
