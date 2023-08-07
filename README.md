@@ -1,4 +1,5 @@
 # Binance Dollar cost averaging (DCA) 
+[![Python package](https://github.com/HemaZ/binance-dca/actions/workflows/python-package.yml/badge.svg)](https://github.com/HemaZ/binance-dca/actions/workflows/python-package.yml)
 
 This Package serves as an easy to use/setup python package to schedule market buy orders with a pre defined frequency. 
 
