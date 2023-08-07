@@ -26,18 +26,18 @@ class DCAUTests(unittest.TestCase):
         """_summary_"""
         dca = DCA()
         # Create Two orders
-        order1 = Order("BTCUSDT", 0.01, Frequency.MONTHLY)
-        order2 = Order("ETHUSDT", 0.01, Frequency.WEEKLY)
+        order1 = Order("BTCUSDT", 10, Frequency.MONTHLY)
+        order2 = Order("ETHUSDT", 10, Frequency.WEEKLY)
         dca.add_order(order1)
         dca.add_order(order2)
         # ETH order should be the next one
         self.assertEqual(dca.next_order.symbol, order2.symbol)
         # Adding a BNB order which should be earlier than ETH order
-        order3 = Order("BNBUSDT", 0.01, Frequency.DAILY)
+        order3 = Order("BNBUSDT", 10, Frequency.DAILY)
         dca.add_order(order3)
         self.assertEqual(dca.next_order.symbol, order3.symbol)
-        # Adding an ADA order which should be later than BNB order
-        order4 = Order("ADAUSDT", 0.01, Frequency.YEARLY)
+        # Adding an XRP order which should be later than BNB order
+        order4 = Order("XRPUSDT", 10, Frequency.YEARLY)
         dca.add_order(order4)
         self.assertEqual(dca.next_order.symbol, order3.symbol)
 
@@ -46,8 +46,8 @@ class DCAUTests(unittest.TestCase):
         # Create Two orders which has same start time, freq
         start_date = datetime.now()
         freq1 = relativedelta(seconds=+1)
-        order1 = Order("BTCUSDT", 0.01, freq1, start_date)
-        order2 = Order("ETHUSDT", 0.01, freq1, start_date)
+        order1 = Order("BTCUSDT", 10, freq1, start_date)
+        order2 = Order("ETHUSDT", 10, freq1, start_date)
         dca.add_order(order1)
         dca.add_order(order2)
         # Force executing next order should keep cycling between the two orders

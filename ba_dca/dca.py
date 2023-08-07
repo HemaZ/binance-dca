@@ -1,7 +1,7 @@
-from typing import Dict, Union, List
+from typing import Dict, Union
 from binance.spot import Spot as Client
 from binance.api import ClientError
-from ba_dca.order import Order, Frequency
+from ba_dca.order import Order
 
 
 class DCA:
@@ -27,6 +27,8 @@ class DCA:
         self._new_order_id: int = 0
         self._next_order: Order = None
         self._next_order_id: int = 0
+        self._symbols_precession: Dict[str, int] = {}
+        self._build_symbols_precession()
 
     def balance(self) -> Union[Dict[str, float], None]:
         """Get the account balances as dict of [Coin_Name,Balance]
@@ -52,6 +54,10 @@ class DCA:
         Returns:
             int: Order id in the active orders list.
         """
+        if order.symbol not in self._symbols_precession:
+            raise RuntimeError(
+                f"Symbol {order.symbol} not available for trading on Binance."
+            )
         self._active_orders[self._new_order_id] = order
         self._new_order_id += 1
         self._update_next_order()
@@ -74,7 +80,33 @@ class DCA:
         """
         return self._next_order
 
+    def _build_symbols_precession(self):
+        for symbol_info in self._client.exchange_info()["symbols"]:
+            self._symbols_precession[symbol_info["symbol"]] = int(
+                symbol_info["quotePrecision"]
+            )
+
     def _execute_next(self) -> int:
+        quantity = round(
+            self.next_order.amount, self._symbols_precession[self.next_order.symbol]
+        )
+        params = {
+            "symbol": self.next_order.symbol,
+            "side": "BUY",
+            "type": "MARKET",
+            "quoteOrderQty": quantity,
+        }
+        round(
+            quantity,
+        )
+        try:
+            response = self._client.new_order(**params)
+        except ClientError as error:
+            raise RuntimeError(
+                f"Couldn't execute market order for pair {self.next_order.symbol}"
+                f" quantity {quantity} {error.error_message}"
+            ) from error
+        print(response["fills"])
         self.next_order.execute()
         executed_order_id = self._next_order_id
         self._update_next_order()
