@@ -1,4 +1,7 @@
 from typing import Dict, Union
+from threading import Thread
+from time import sleep
+from datetime import datetime
 from binance.spot import Spot as Client
 from binance.api import ClientError
 from ba_dca.order import Order
@@ -29,6 +32,7 @@ class DCA:
         self._next_order_id: int = 0
         self._symbols_precession: Dict[str, int] = {}
         self._build_symbols_precession()
+        self._running_thread = None
 
     def balance(self) -> Union[Dict[str, float], None]:
         """Get the account balances as dict of [Coin_Name,Balance]
@@ -83,7 +87,7 @@ class DCA:
     def _build_symbols_precession(self):
         for symbol_info in self._client.exchange_info()["symbols"]:
             self._symbols_precession[symbol_info["symbol"]] = int(
-                symbol_info["quotePrecision"]
+                symbol_info["baseAssetPrecision"]
             )
 
     def _execute_next(self) -> int:
@@ -116,3 +120,18 @@ class DCA:
             int: Executed order id.
         """
         return self._execute_next()
+
+    def _run(self):
+        while True:
+            now = datetime.now()
+            if self.next_order.next_execution_time <= now:
+                print("Executing new order")
+                self._execute_next()
+            period = self.next_order.next_execution_time - now
+            if period.total_seconds() > 1:
+                sleep(1)
+
+    def run(self):
+        """_summary_"""
+        self._running_thread = Thread(daemon=True, target=self._run)
+        self._running_thread.start()
