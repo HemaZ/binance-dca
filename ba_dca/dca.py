@@ -96,9 +96,6 @@ class DCA:
             "type": "MARKET",
             "quoteOrderQty": quantity,
         }
-        round(
-            quantity,
-        )
         try:
             response = self._client.new_order(**params)
         except ClientError as error:
