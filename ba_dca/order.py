@@ -1,15 +1,11 @@
 from enum import Enum
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 from typing import Union
+from dateutil.relativedelta import relativedelta
 
 
 class Frequency(Enum):
-    """_summary_
-
-    Args:
-        Enum (_type_): _description_
-    """
+    """Trading frequency."""
 
     HOURLY = 1
     DAILY = 2
@@ -41,7 +37,7 @@ class Frequency(Enum):
 
 
 class Order:
-    """_summary_"""
+    """Class to represent an recurring order."""
 
     def __init__(
         self,
@@ -50,6 +46,16 @@ class Order:
         freq: Union[Frequency, relativedelta] = Frequency.DAILY,
         start_date=datetime.now(),
     ) -> None:
+        """Create a new Order.
+
+        Args:
+            symbol (str): Trading pair symbol. for example 'BTCUSDT'
+            amount (float): Amount to buy in the base asset, for example if the pair is BTCUSDT,
+            then this will be the amount in USDT.
+            freq (Union[Frequency, relativedelta], optional): Trading frequency.
+            Defaults to Frequency.DAILY.
+            start_date (_type_, optional): When to start this trade. Defaults to datetime.now().
+        """
         self._symbol = symbol
         self._amount = amount
         self._freq = (
@@ -61,12 +67,8 @@ class Order:
         self._next_order_t = self._start_date + self._freq
         self._last_order_t: datetime = None
 
-    def execute(self) -> bool:
-        """_summary_
-
-        Returns:
-            bool: _description_
-        """
+    def execute(self):
+        """Mark the order as executed."""
         self._last_order_t = datetime.now()
         self._next_order_t = datetime.now() + self._freq
 
