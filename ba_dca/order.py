@@ -1,39 +1,6 @@
-from enum import Enum
 from datetime import datetime
 from typing import Union
-from dateutil.relativedelta import relativedelta
-
-
-class Frequency(Enum):
-    """Trading frequency."""
-
-    HOURLY = 1
-    DAILY = 2
-    WEEKLY = 3
-    MONTHLY = 4
-    YEARLY = 5
-
-    @classmethod
-    def freq_to_relative_delta(cls, freq: "Frequency") -> relativedelta:
-        """Convert the Frequency enum to dateutil.relativedelta.
-
-        Args:
-            freq (Frequency): Order frequency as time.
-
-        Returns:
-            relativedelta: dateutil.relativedelta to be used with datetime module.
-        """
-        if freq == Frequency.HOURLY:
-            return relativedelta(hours=+1)
-        if freq == Frequency.DAILY:
-            return relativedelta(days=+1)
-        if freq == Frequency.WEEKLY:
-            return relativedelta(weeks=+1)
-        if freq == Frequency.MONTHLY:
-            return relativedelta(months=+1)
-        if freq == Frequency.YEARLY:
-            return relativedelta(years=+1)
-        return relativedelta
+from ba_dca.frequency import Frequency, relativedelta
 
 
 class Order:
@@ -107,3 +74,21 @@ class Order:
             float: order amount.
         """
         return self._amount
+
+    @property
+    def start_date(self) -> datetime:
+        """Return the order amount.
+
+        Returns:
+            float: order amount.
+        """
+        return self._start_date
+
+    @property
+    def frequency(self) -> relativedelta:
+        """Return the order frequency.
+
+        Returns:
+            relativedelta: order frequency.
+        """
+        return self._freq
