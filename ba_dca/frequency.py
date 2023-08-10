@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from dateutil.relativedelta import relativedelta
 
@@ -32,3 +33,59 @@ class Frequency(Enum):
         if freq == Frequency.YEARLY:
             return relativedelta(years=+1)
         return relativedelta
+
+
+def str_to_relativedelta(text: str) -> relativedelta:
+    """Convert string which represents relativedelta to a relativedelta object.
+
+    Args:
+        text (str): string which represents relativedelta.
+
+    Returns:
+        relativedelta: Converted relativedelta object.
+    """
+    # Define a pattern with a positive lookbehind for "years"
+    pattern_years = r"(?<=years=)[+-]?\d+"
+    pattern_months = r"(?<=months=)[+-]?\d+"
+    pattern_weeks = r"(?<=weeks=)[+-]?\d+"
+    pattern_days = r"(?<=days=)[+-]?\d+"
+    pattern_hours = r"(?<=hours=)[+-]?\d+"
+
+    # Find the number after "years" in the text
+    match = re.search(pattern_years, text)
+    if match:
+        n_years = int(match.group())
+    else:
+        n_years = 0
+
+    # Find the number after "years" in the text
+    match = re.search(pattern_months, text)
+    if match:
+        n_months = int(match.group())
+    else:
+        n_months = 0
+
+    # Find the number after "years" in the text
+    match = re.search(pattern_weeks, text)
+    if match:
+        n_weeks = int(match.group())
+    else:
+        n_weeks = 0
+
+    # Find the number after "years" in the text
+    match = re.search(pattern_days, text)
+    if match:
+        n_days = int(match.group())
+    else:
+        n_days = 0
+
+    # Find the number after "years" in the text
+    match = re.search(pattern_hours, text)
+    if match:
+        n_hours = int(match.group())
+    else:
+        n_hours = 0
+
+    return relativedelta(
+        years=+n_years, months=+n_months, weeks=+n_weeks, days=+n_days, hours=+n_hours
+    )
