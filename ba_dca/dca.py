@@ -1,10 +1,12 @@
-from typing import Dict, Union
+import os
+from typing import Dict, Union, List
 from threading import Thread
 from time import sleep
 from datetime import datetime
 from binance.spot import Spot as Client
 from binance.api import ClientError
 from ba_dca.order import Order
+from ba_dca.database import Database
 
 
 class DCA:
@@ -33,6 +35,11 @@ class DCA:
         self._symbols_precession: Dict[str, int] = {}
         self._build_symbols_precession()
         self._running_thread = None
+        home = os.environ["HOME"]
+        database_path = os.path.join(home, ".ba_dca/ba_dca.db")
+        if not os.path.exists(home + "/.ba_dca"):
+            os.mkdir(home + "/.ba_dca")
+        self._db = Database(database_path)
 
     def balance(self) -> Union[Dict[str, float], None]:
         """Get the account balances as dict of [Coin_Name,Balance]
@@ -65,6 +72,7 @@ class DCA:
         self._active_orders[self._new_order_id] = order
         self._new_order_id += 1
         self._update_next_order()
+        self._db.add_order(order)
         return self._new_order_id - 1
 
     def _update_next_order(self):
@@ -132,6 +140,15 @@ class DCA:
                 sleep(1)
 
     def run(self):
-        """_summary_"""
+        """Run the system in background."""
         self._running_thread = Thread(daemon=True, target=self._run)
         self._running_thread.start()
+
+    @property
+    def active_orders(self) -> Dict[int, Order]:
+        """Return the current active folders.
+
+        Returns:
+            Dict[int, Order]: Active orders.
+        """
+        return self._active_orders.copy()
