@@ -2,6 +2,8 @@
 
 """This module provides views to manage the orders table."""
 import sys
+import os
+import pathlib
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QHBoxLayout,
@@ -14,6 +16,11 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor
+from ba_dca.qt.model import OrdersModel
+from ba_dca.qt.database import create_connection
+from PyQt5 import QtWidgets, uic
+
+here = pathlib.Path(__file__).parent.resolve()
 
 
 class Window(QMainWindow):
@@ -22,12 +29,15 @@ class Window(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
         super().__init__(parent)
+        # uic.loadUi(str(here) + "/main.ui", self)  # Load the .ui file
         self.setWindowTitle("Binance DCA")
-        self.resize(550, 250)
+        self.resize(678, 678)
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
         self.layout = QHBoxLayout()
+        self.layout.sizeHint
         self.centralWidget.setLayout(self.layout)
+        self.orders_model = OrdersModel()
         self.setupUI()
 
     def setupUI(self):
@@ -37,6 +47,7 @@ class Window(QMainWindow):
         self.table = QTableView()
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.resizeColumnsToContents()
+        self.table.setModel(self.orders_model.model)
         # Create buttons
         self.addButton = QPushButton("Add...")
         self.deleteButton = QPushButton("Delete")
@@ -86,6 +97,12 @@ def main():
     # Create the application
     app = QApplication(sys.argv)
     enable_dark_theme(app)
+    # Create and connect db
+    home = os.environ["HOME"]
+    database_path = os.path.join(home, ".ba_dca/ba_dca.db")
+    if not os.path.exists(home + "/.ba_dca"):
+        os.mkdir(home + "/.ba_dca")
+    create_connection(database_path)
     # Create the main window
     win = Window()
     win.show()
