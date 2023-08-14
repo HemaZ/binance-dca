@@ -34,6 +34,17 @@ class Order:
         self._next_order_t = self._start_date + self._freq
         self._last_order_t: datetime = None
 
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(other, Order):
+            return (
+                (self.symbol == other.symbol)
+                and (self.amount == other.amount)
+                and (self.start_date == other.start_date)
+                and (self.frequency == other.frequency)
+            )
+        return False
+    
     def execute(self):
         """Mark the order as executed."""
         self._last_order_t = datetime.now()
