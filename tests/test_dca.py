@@ -24,7 +24,7 @@ class DCAUTests(unittest.TestCase):
 
     def test_adding_order(self):
         """_summary_"""
-        dca = DCA()
+        dca = DCA(db_name=str(datetime.now().timestamp()) + "test_adding_order.db")
         # Create Two orders
         order1 = Order("BTCUSDT", 10, Frequency.MONTHLY)
         order2 = Order("ETHUSDT", 10, Frequency.WEEKLY)
@@ -32,6 +32,7 @@ class DCAUTests(unittest.TestCase):
         dca.add_order(order2)
         # ETH order should be the next one
         self.assertEqual(dca.next_order.symbol, order2.symbol)
+        self.assertEqual(len(dca.active_orders), 2)
         # Adding a BNB order which should be earlier than ETH order
         order3 = Order("BNBUSDT", 10, Frequency.DAILY)
         dca.add_order(order3)
@@ -42,7 +43,7 @@ class DCAUTests(unittest.TestCase):
         self.assertEqual(dca.next_order.symbol, order3.symbol)
 
     def test_force_execute(self):
-        dca = DCA()
+        dca = DCA(db_name=str(datetime.now().timestamp()) + "test_force_execute.db")
         # Create Two orders which has same start time, freq
         start_date = datetime.now()
         freq1 = relativedelta(seconds=+1)

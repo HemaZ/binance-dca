@@ -21,6 +21,7 @@ class DCA:
         base_url: str = "https://testnet.binance.vision",
         api_key: str = "yn9sfYQ4mzErFvJ7p1NQF2JGw7qiDBrBJq7bltyM6glJVAgZJ9VWre3z5p3Rs3dJ",
         api_secret: str = "o2ovcoCUu8aXs7KFBD43thJcrQPrlzY9TXuCxoAjzLAZv8KdPTEg6beXVbXeMiHb",
+        db_name: str = "ba_dca.db",
     ) -> None:
         self._client = (
             client
@@ -39,7 +40,7 @@ class DCA:
         self._build_symbols_precession()
         self._running_thread = None
         home = os.environ["HOME"]
-        database_path = os.path.join(home, ".ba_dca/ba_dca.db")
+        database_path = os.path.join(home, ".ba_dca/", db_name)
         if not os.path.exists(home + "/.ba_dca"):
             os.mkdir(home + "/.ba_dca")
         self._db = Database(database_path)
@@ -56,7 +57,8 @@ class DCA:
             )
             order_id += 1
         self._new_order_id = order_id
-        self._update_next_order()
+        if self._new_order_id > 0:
+            self._update_next_order()
 
     def balance(self) -> Union[Dict[str, float], None]:
         """Get the account balances as dict of [Coin_Name,Balance]
