@@ -16,7 +16,9 @@ classifiers = [
 dependencies = [ 
   "binance-connector",
   "python-dateutil",
-  "PyQt5"
+  "PyQt5",
+  "tabulate",
+  "termcolor"
 ]
 
 [build-system]
