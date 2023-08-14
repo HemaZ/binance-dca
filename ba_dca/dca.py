@@ -1,12 +1,15 @@
 import os
-from typing import Dict, Union, List
+from typing import Dict, Union
 from threading import Thread
 from time import sleep
 from datetime import datetime
+from tabulate import tabulate
+from termcolor import colored
 from binance.spot import Spot as Client
 from binance.api import ClientError
 from ba_dca.order import Order
 from ba_dca.database import Database
+from ba_dca.frequency import str_to_relativedelta
 
 
 class DCA:
@@ -40,6 +43,20 @@ class DCA:
         if not os.path.exists(home + "/.ba_dca"):
             os.mkdir(home + "/.ba_dca")
         self._db = Database(database_path)
+        self._load_orders_from_db()
+
+    def _load_orders_from_db(self):
+        orders = self._db.query_orders()
+        order_id = 0
+        for order in orders:
+            order_freq = str_to_relativedelta(order[2])
+            order_date = datetime.fromtimestamp(float(order[3]))
+            self._active_orders[order_id] = Order(
+                order[0], float(order[1]), order_freq, order_date
+            )
+            order_id += 1
+        self._new_order_id = order_id
+        self._update_next_order()
 
     def balance(self) -> Union[Dict[str, float], None]:
         """Get the account balances as dict of [Coin_Name,Balance]
@@ -115,7 +132,7 @@ class DCA:
                 f"Couldn't execute market order for pair {self.next_order.symbol}"
                 f" quantity {quantity} {error.error_message}"
             ) from error
-        print(response["fills"])
+        # print(response["fills"])
         self.next_order.execute()
         executed_order_id = self._next_order_id
         self._update_next_order()
@@ -133,8 +150,8 @@ class DCA:
         while True:
             now = datetime.now()
             if self.next_order.next_execution_time <= now:
-                print("Executing new order")
                 self._execute_next()
+            self.print_active_orders()
             period = self.next_order.next_execution_time - now
             if period.total_seconds() > 1:
                 sleep(1)
@@ -152,3 +169,26 @@ class DCA:
             Dict[int, Order]: Active orders.
         """
         return self._active_orders.copy()
+
+    def print_active_orders(self):
+        """Pretty print of the active orders."""
+        table = []
+        for _, order in self._active_orders.items():
+            symbol = order.symbol
+            amount = order.amount
+            freq = order.frequency
+            start_date = order.start_date
+            if order == self.next_order:
+                symbol = colored(symbol, "yellow", attrs=["underline", "bold"])
+                amount = colored(amount, "yellow", attrs=["underline", "bold"])
+                freq = colored(freq, "yellow", attrs=["underline", "bold"])
+                start_date = colored(start_date, "yellow", attrs=["underline", "bold"])
+            table.append([symbol, amount, freq, start_date])
+        print(
+            tabulate(
+                table,
+                headers=["Id", "Symbol", "Amount", "Frequency", "Start Date"],
+                showindex="always",
+                tablefmt="fancy_outline",
+            )
+        )
