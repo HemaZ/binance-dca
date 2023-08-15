@@ -30,6 +30,9 @@ class Order:
             if isinstance(freq, relativedelta)
             else Frequency.freq_to_relative_delta(freq)
         )
+        self._total_usd = 0
+        self._total_qty = 0
+        self._average = 0
         self._start_date = start_date
         self._next_order_t = self._start_date + self._freq
         self._last_order_t: datetime = None
@@ -51,10 +54,13 @@ class Order:
             f"Freq:{str(self.frequency)} Date:{str(self.start_date)}"
         )
 
-    def execute(self):
+    def execute(self, qty: float, price: float, order_time: datetime = datetime.now()):
         """Mark the order as executed."""
-        self._last_order_t = datetime.now()
-        self._next_order_t = datetime.now() + self._freq
+        self._total_qty += qty
+        self._total_usd += qty * price
+        self._average = self._total_usd / self._total_qty
+        self._last_order_t = order_time
+        self._next_order_t = self._last_order_t + self._freq
 
     @property
     def next_execution_time(self) -> datetime:
@@ -109,3 +115,7 @@ class Order:
             relativedelta: order frequency.
         """
         return self._freq
+
+    @property
+    def average(self) -> float:
+        return self._average

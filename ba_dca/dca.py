@@ -45,6 +45,7 @@ class DCA:
             os.mkdir(home + "/.ba_dca")
         self._db = Database(database_path)
         self._load_orders_from_db()
+        self._load_executed_orders_from_db()
 
     def _load_orders_from_db(self):
         orders = self._db.query_orders()
@@ -59,6 +60,16 @@ class DCA:
         self._new_order_id = order_id + 1
         if self._new_order_id > 1:
             self._update_next_order()
+
+    def _load_executed_orders_from_db(self):
+        for order in self._db.query_executed_orders():
+            order_id = order[4]
+            if order_id not in self._active_orders:
+                continue
+            order_t = datetime.fromtimestamp(float(order[3]))
+            self._active_orders[order_id].execute(
+                float(order[1]), float(order[2]), order_t
+            )
 
     def balance(self) -> Union[Dict[str, float], None]:
         """Get the account balances as dict of [Coin_Name,Balance]
@@ -136,11 +147,12 @@ class DCA:
                 f" quantity {quantity} {error.error_message}"
             ) from error
         for trade in response["fills"]:
-            print(trade)
             self._db.add_executed_order(
                 self._next_order_id, trade["qty"], trade["price"], datetime.now()
             )
-        self.next_order.execute()
+            self.next_order.execute(
+                float(trade["qty"]), float(trade["price"]), datetime.now()
+            )
         executed_order_id = self._next_order_id
         self._update_next_order()
         return executed_order_id
@@ -156,7 +168,9 @@ class DCA:
     def _run(self):
         while True:
             now = datetime.now()
-            if self.next_order.next_execution_time <= now:
+            # print(f"Next Time : {self.next_order.next_execution_time.timestamp()}")
+            # print(f"Now       : {now.timestamp()}")
+            if self.next_order.next_execution_time.timestamp() <= now.timestamp():
                 self._execute_next()
             self.print_active_orders()
             period = self.next_order.next_execution_time - now
@@ -198,3 +212,39 @@ class DCA:
                 tablefmt="fancy_outline",
             )
         )
+
+    def print_executed_orders(self, order_id: int = None):
+        """Pretty print of the active orders."""
+        table = []
+        for order in self._db.query_executed_orders():
+            if order_id and int(order[4]) != order_id:
+                continue
+            table.append(
+                [
+                    order[0],
+                    order[1],
+                    order[2] + "$",
+                    datetime.fromtimestamp(float(order[3])),
+                    order[4],
+                ]
+            )
+        print(
+            tabulate(
+                table,
+                headers=["Id", "Amount", "Price", "Date", "Order Id"],
+                tablefmt="fancy_outline",
+            )
+        )
+
+    def order_average(self, order_id: int) -> Union[float, None]:
+        """Return the current order average.
+
+        Args:
+            order_id (int): Order Id.
+
+        Returns:
+            Union[float, None]: Current average.
+        """
+        if order_id not in self._active_orders:
+            return None
+        return self._active_orders[order_id].average
