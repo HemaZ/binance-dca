@@ -57,7 +57,7 @@ class DCA:
             )
             order_id = int(order[0])
         self._new_order_id = order_id + 1
-        if self._new_order_id > 0:
+        if self._new_order_id > 1:
             self._update_next_order()
 
     def balance(self) -> Union[Dict[str, float], None]:
