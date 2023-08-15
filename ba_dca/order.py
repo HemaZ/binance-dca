@@ -44,7 +44,13 @@ class Order:
                 and (self.frequency == other.frequency)
             )
         return False
-    
+
+    def __str__(self) -> str:
+        return (
+            f"Symbol:{self.symbol} Amount:{self.amount}"
+            f"Freq:{str(self.frequency)} Date:{str(self.start_date)}"
+        )
+
     def execute(self):
         """Mark the order as executed."""
         self._last_order_t = datetime.now()

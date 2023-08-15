@@ -35,7 +35,7 @@ class DCA:
         self._active_orders: Dict[int, Order] = {}
         self._new_order_id: int = 0
         self._next_order: Order = None
-        self._next_order_id: int = 0
+        self._next_order_id: int = 1
         self._symbols_precession: Dict[str, int] = {}
         self._build_symbols_precession()
         self._running_thread = None
@@ -50,13 +50,13 @@ class DCA:
         orders = self._db.query_orders()
         order_id = 0
         for order in orders:
-            order_freq = str_to_relativedelta(order[2])
-            order_date = datetime.fromtimestamp(float(order[3]))
-            self._active_orders[order_id] = Order(
-                order[0], float(order[1]), order_freq, order_date
+            order_freq = str_to_relativedelta(order[3])
+            order_date = datetime.fromtimestamp(float(order[4]))
+            self._active_orders[order[0]] = Order(
+                order[1], float(order[2]), order_freq, order_date
             )
-            order_id += 1
-        self._new_order_id = order_id
+            order_id = int(order[0])
+        self._new_order_id = order_id + 1
         if self._new_order_id > 0:
             self._update_next_order()
 
@@ -97,6 +97,7 @@ class DCA:
     def _update_next_order(self):
         if not self._next_order:
             self._next_order = self._active_orders[self._new_order_id - 1]
+            self._next_order_id = self._new_order_id - 1
         for order_id, order in self._active_orders.items():
             if order.next_execution_time < self._next_order.next_execution_time:
                 self._next_order = self._active_orders[order_id]
@@ -134,7 +135,11 @@ class DCA:
                 f"Couldn't execute market order for pair {self.next_order.symbol}"
                 f" quantity {quantity} {error.error_message}"
             ) from error
-        # print(response["fills"])
+        for trade in response["fills"]:
+            print(trade)
+            self._db.add_executed_order(
+                self._next_order_id, trade["qty"], trade["price"], datetime.now()
+            )
         self.next_order.execute()
         executed_order_id = self._next_order_id
         self._update_next_order()
@@ -175,7 +180,7 @@ class DCA:
     def print_active_orders(self):
         """Pretty print of the active orders."""
         table = []
-        for _, order in self._active_orders.items():
+        for order_id, order in self._active_orders.items():
             symbol = order.symbol
             amount = order.amount
             freq = order.frequency
@@ -185,12 +190,11 @@ class DCA:
                 amount = colored(amount, "yellow", attrs=["underline", "bold"])
                 freq = colored(freq, "yellow", attrs=["underline", "bold"])
                 start_date = colored(start_date, "yellow", attrs=["underline", "bold"])
-            table.append([symbol, amount, freq, start_date])
+            table.append([order_id, symbol, amount, freq, start_date])
         print(
             tabulate(
                 table,
                 headers=["Id", "Symbol", "Amount", "Frequency", "Start Date"],
-                showindex="always",
                 tablefmt="fancy_outline",
             )
         )

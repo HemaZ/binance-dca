@@ -19,7 +19,7 @@ class DCAUTests(unittest.TestCase):
 
     def test_balances(self):
         """_summary_"""
-        cli = DCA()
+        cli = DCA(db_name="test_balance.db")
         self.assertIsInstance(cli.balance(), dict)
 
     def test_adding_order(self):
@@ -53,8 +53,8 @@ class DCAUTests(unittest.TestCase):
         dca.add_order(order2)
         # Force executing next order should keep cycling between the two orders
         self.assertEqual(dca.next_order.symbol, order1.symbol)
-        self.assertEqual(dca.force_execute(), 0)
-        self.assertEqual(dca.next_order.symbol, order2.symbol)
         self.assertEqual(dca.force_execute(), 1)
+        self.assertEqual(dca.next_order.symbol, order2.symbol)
+        self.assertEqual(dca.force_execute(), 2)
         self.assertEqual(dca.next_order.symbol, order1.symbol)
-        self.assertEqual(dca.force_execute(), 0)
+        self.assertEqual(dca.force_execute(), 1)

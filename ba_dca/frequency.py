@@ -50,6 +50,8 @@ def str_to_relativedelta(text: str) -> relativedelta:
     pattern_weeks = r"(?<=weeks=)[+-]?\d+"
     pattern_days = r"(?<=days=)[+-]?\d+"
     pattern_hours = r"(?<=hours=)[+-]?\d+"
+    pattern_minutes = r"(?<=minutes=)[+-]?\d+"
+    pattern_seconds = r"(?<=seconds=)[+-]?\d+"
 
     # Find the number after "years" in the text
     match = re.search(pattern_years, text)
@@ -86,6 +88,26 @@ def str_to_relativedelta(text: str) -> relativedelta:
     else:
         n_hours = 0
 
+    # Find the number after "years" in the text
+    match = re.search(pattern_minutes, text)
+    if match:
+        n_minutes = int(match.group())
+    else:
+        n_minutes = 0
+
+    # Find the number after "years" in the text
+    match = re.search(pattern_seconds, text)
+    if match:
+        n_seconds = int(match.group())
+    else:
+        n_seconds = 0
+
     return relativedelta(
-        years=+n_years, months=+n_months, weeks=+n_weeks, days=+n_days, hours=+n_hours
+        years=+n_years,
+        months=+n_months,
+        weeks=+n_weeks,
+        days=+n_days,
+        hours=+n_hours,
+        minutes=+n_minutes,
+        seconds=+n_seconds,
     )
