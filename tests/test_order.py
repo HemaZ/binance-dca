@@ -21,7 +21,7 @@ class OrderUTests(unittest.TestCase):
         freq = Frequency.DAILY
         order = Order("BTCUSDT", 10, freq, start_date=start_t)
         next_order_t = order.next_execution_time
-        order.execute(0.01,29000)
+        order.execute(0.01, 29000, datetime.now())
         self.assertLess(start_t, order.last_executed_time)
         self.assertNotEqual(next_order_t, order.next_execution_time)
         self.assertGreater(order.next_execution_time, next_order_t)
