@@ -21,7 +21,7 @@ class Order:
             then this will be the amount in USDT.
             freq (Union[Frequency, relativedelta], optional): Trading frequency.
             Defaults to Frequency.DAILY.
-            start_date (_type_, optional): When to start this trade. Defaults to datetime.now().
+            start_date (datetime, optional): When to start this trade. Defaults to datetime.now().
         """
         self._symbol = symbol
         self._amount = amount
