@@ -18,7 +18,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor
 from ba_dca.qt.model import OrdersModel
 from ba_dca.qt.database import create_connection
-from PyQt5 import QtWidgets, uic
 
 here = pathlib.Path(__file__).parent.resolve()
 

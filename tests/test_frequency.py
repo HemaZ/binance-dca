@@ -1,5 +1,5 @@
 import unittest
-from ba_dca.frequency import Frequency, relativedelta, str_to_relativedelta
+from ba_dca.frequency import relativedelta, str_to_relativedelta
 
 
 class FreqUTests(unittest.TestCase):
