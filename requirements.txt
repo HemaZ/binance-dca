@@ -1,0 +1,6 @@
+binance-connector
+python-dateutil
+PyQt5
+tabulate
+termcolor
+typer

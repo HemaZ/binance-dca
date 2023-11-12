@@ -13,14 +13,13 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = [ 
-  "binance-connector",
-  "python-dateutil",
-  "PyQt5",
-  "tabulate",
-  "termcolor"
-]
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project.scripts]
+ba-dca = "ba_dca.cli:app"
