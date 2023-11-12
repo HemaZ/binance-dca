@@ -1,16 +1,14 @@
 [project]
 name = "BA_DCA"
 version = "0.0.1"
-authors = [
-  { name="Ibrahim", email="ibrahim.essam1995@gmail.com" },
-]
+authors = [{ name = "Ibrahim", email = "ibrahim.essam1995@gmail.com" }]
 description = "Python package bto setup DCA orders on binance."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
 
 [tool.setuptools.dynamic]
@@ -23,3 +21,4 @@ build-backend = "setuptools.build_meta"
 
 [project.scripts]
 ba-dca = "ba_dca.cli:app"
+ba-dca-gui = "ba_dca.qt.gui:main"
