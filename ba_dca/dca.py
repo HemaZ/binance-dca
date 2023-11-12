@@ -1,4 +1,5 @@
 import os
+import logging as log
 from typing import Dict, Union
 from threading import Thread
 from time import sleep
@@ -166,6 +167,9 @@ class DCA:
         return self._execute_next()
 
     def _run(self):
+        if not self.next_order:
+            log.error("No active orders. Please add orders before running.")
+            return
         while True:
             now = datetime.now()
             # print(f"Next Time : {self.next_order.next_execution_time.timestamp()}")
@@ -177,10 +181,17 @@ class DCA:
             if period.total_seconds() > 1:
                 sleep(1)
 
-    def run(self):
-        """Run the system in background."""
+    def run(self, block=False):
+        """Run the order scheduling.
+
+        Args:
+            block (bool, optional): If false, the functino will run in the background.
+            Defaults to False.
+        """
         self._running_thread = Thread(daemon=True, target=self._run)
         self._running_thread.start()
+        if block:
+            self._running_thread.join()
 
     @property
     def active_orders(self) -> Dict[int, Order]:
