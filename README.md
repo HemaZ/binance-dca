@@ -1,3 +1,4 @@
+[![FreePalestine.Dev](https://freepalestine.dev/header/1)](https://freepalestine.dev)
 # Binance Dollar cost averaging (DCA) 
 [![Python package](https://github.com/HemaZ/binance-dca/actions/workflows/python-package.yml/badge.svg)](https://github.com/HemaZ/binance-dca/actions/workflows/python-package.yml)
 
